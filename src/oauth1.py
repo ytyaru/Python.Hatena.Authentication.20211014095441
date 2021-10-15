@@ -9,13 +9,25 @@ class OAuth1:
     def from_json(cls, path, schema_path=None):
         secret = Secret.from_json(path, schema_path)
         keys = ['oauth_consumer_key', 'oauth_consumer_secret', 'oauth_token', 'oauth_token_secret']
-        cls.__has_not_keys(path, secret, keys)
+#        cls.__has_not_keys(path, secret, keys)
+        cls.__has_not_key(path, secret)
+        cls.__has_not_token(path, secret)
         return cls.from_str(*[secret[key] for key in keys])
+#    @classmethod
+#    def __has_not_keys(cls, path, secret, keys):
+#        for key in keys:
+#            if key not in secret:
+#                raise ValueError(f'[ERROR] {key} がありません。指定したファイルにセットしてください。: {path}\nhttp://developer.hatena.ne.jp/ja/documents/auth/apis/oauth/consumer')
     @classmethod
-    def __has_not_keys(cls, path, secret, keys):
-        for key in keys:
+    def __has_not_key(cls, path, secret):
+        for key in ['oauth_consumer_key', 'oauth_consumer_secret']:
             if key not in secret:
-                raise ValueError(f'[ERROR] {key} がありません。指定したファイルにセットしてください。: {path}')
+                raise ValueError(f'[ERROR] {key} がありません。指定したファイルにセットしてください。: {path}\nJSONキー名は同ディレクトリにある secret-schema.json を参照してください。\nキーの取得は以下サイトを参照してください。\nhttp://developer.hatena.ne.jp/ja/documents/auth/apis/oauth/consumer')
+    @classmethod
+    def __has_not_token(cls, path, secret):
+        for key in ['oauth_token', 'oauth_token_secret']:
+            if key not in secret:
+                raise ValueError(f'[ERROR] {key} がありません。AccessTokenを取得して次のファイルにセットしてください。：{path}\nこの処理は半自動化できます。oauth1_get_token.py ファイルを実行して指示に従ってください。')
     @classmethod
     def from_str(cls, client_key:str, client_secret:str, resource_owner_key:str, resource_owner_secret:str):
         CREDENTIALS = {}
